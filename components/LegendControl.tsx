@@ -8,7 +8,7 @@ interface LegendControlProps {
   property: string;
   legendItems: any[];
   isContinuous: boolean;
-  colorScale?: (value: number) => string;
+  colorScale?: (value: number) => string | undefined;
 }
 
 const LegendControl: React.FC<LegendControlProps> = ({ property, legendItems, isContinuous, colorScale }) => {

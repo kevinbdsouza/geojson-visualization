@@ -54,7 +54,7 @@ const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData
       }));
       return {
         legendItems,
-        colorScale: null,
+        colorScale: undefined,
         isContinuous: false as const
       };
     }
