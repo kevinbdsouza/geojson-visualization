@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import { LatLngTuple } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { GeoJSONData } from '../types/geojson';
 
 interface GeoJSONVisualizationProps {
   geojsonData: any;

@@ -2,6 +2,7 @@ import React from 'react';
 import fs from 'fs/promises';
 import path from 'path';
 import ClientWrapper from '@/components/ClientWrapper';
+import { GeoJSONData } from '../types/geojson';
 
 // This is an async Server Component
 async function Home() {
@@ -10,7 +11,7 @@ async function Home() {
   const fileContents = await fs.readFile(filePath, 'utf8');
 
   // Parse the JSON content
-  const geojsonData = JSON.parse(fileContents);
+  const geojsonData: GeoJSONData = JSON.parse(fileContents);
 
   return (
     <div>
