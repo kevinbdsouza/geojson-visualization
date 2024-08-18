@@ -16,7 +16,7 @@ const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData
 
   const properties = useMemo(() => {
     const allProperties = new Set<string>();
-    geojsonData.features.forEach((feature: any) => {
+    geojsonData.features.forEach((feature) => {
       Object.keys(feature.properties).forEach(prop => allProperties.add(prop));
     });
     return Array.from(allProperties);
@@ -25,16 +25,17 @@ const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData
   const { legendItems, colorScale, isContinuous } = useMemo(() => {
     console.log("Calculating legend items for property:", property);
     const values = geojsonData.features.map(f => f.properties[property]);
-    const uniqueValues = [...new Set(values)];
+    const uniqueValues = Array.from(new Set(values));
     
-    const isNumeric = uniqueValues.every(v => !isNaN(parseFloat(v)) && isFinite(v));
-    const isInteger = isNumeric && uniqueValues.every(v => Number.isInteger(parseFloat(v)));
+    const isNumeric = uniqueValues.every(v => !isNaN(parseFloat(v as string)) && isFinite(v as number));
+    const isInteger = isNumeric && uniqueValues.every(v => Number.isInteger(parseFloat(v as string)));
     const isContinuous = isNumeric && !isInteger;
 
     if (isContinuous) {
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const colorScale = (value) => {
+      const numericValues = values.map(v => parseFloat(v as string));
+      const min = Math.min(...numericValues);
+      const max = Math.max(...numericValues);
+      const colorScale = (value: number): string => {
         const normalized = (value - min) / (max - min);
         const hue = (1 - normalized) * 240; // Blue to Red
         return `hsl(${hue}, 100%, 50%)`;
@@ -42,7 +43,7 @@ const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData
       return {
         legendItems: [{ min, max }],
         colorScale,
-        isContinuous: true
+        isContinuous: true as const
       };
     } else {
       const sortedValues = uniqueValues.sort((a, b) => a.toString().localeCompare(b.toString()));
@@ -54,16 +55,16 @@ const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData
       return {
         legendItems,
         colorScale: null,
-        isContinuous: false
+        isContinuous: false as const
       };
     }
   }, [geojsonData, property]);
 
   const style = (feature: any) => {
     const value = feature.properties[property];
-    if (isContinuous) {
+    if (isContinuous && colorScale) {
       return {
-        fillColor: colorScale(value),
+        fillColor: colorScale(parseFloat(value)),
         weight: 2,
         opacity: 1,
         color: 'white',
