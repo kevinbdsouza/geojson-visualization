@@ -89,4 +89,4 @@ const LegendControl: React.FC<LegendControlProps> = ({ property, legendItems, is
   return null;
 };
 
-export default LegendControl;
+export default LegendControl_cp;
