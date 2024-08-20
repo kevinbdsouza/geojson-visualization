@@ -7,7 +7,7 @@ import { GeoJSONData } from '../types/geojson';
 // This is an async Server Component
 async function Home() {
   // Read the data.geojson file
-  const filePath = path.join(process.cwd(), 'public', 'compiled_gpd2.geojson');
+  const filePath = path.join(process.cwd(), 'public', 'compiled_gpd_no_nones.geojson');
   const fileContents = await fs.readFile(filePath, 'utf8');
 
   // Parse the JSON content
