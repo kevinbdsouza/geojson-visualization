@@ -83,22 +83,29 @@ const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="mb-4">
+    <div className="flex flex-col h-screen bg-gray-100">
+      <div className="mb-4 p-4 bg-gray-800">
         <select
           value={property}
           onChange={(e) => setProperty(e.target.value)}
-          className="p-2 border rounded"
+          className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 0.75rem center',
+            backgroundSize: '1.5em 1.5em',
+            paddingRight: '2.5rem'
+          }}
         >
           {properties.map((prop) => (
-            <option key={prop} value={prop}>
+            <option key={prop} value={prop} className="bg-gray-700">
               {prop}
             </option>
           ))}
         </select>
       </div>
       <div className="flex-grow relative">
-        <MapContainer center={center} zoom={3} style={{ height: '100%', width: '100%' }}>
+        <MapContainer center={center} zoom={5} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
