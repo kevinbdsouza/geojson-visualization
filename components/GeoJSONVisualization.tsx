@@ -1,17 +1,18 @@
 'use client';
-import React, { useState, useMemo, useEffect } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import React, { useState, useMemo } from 'react';
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import { LatLngTuple } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import LegendControl from './LegendControl';
 import { GeoJSONData } from '../types/geojson';
+import chroma from 'chroma-js';
 
 interface GeoJSONVisualizationProps {
   geojsonData: GeoJSONData;
 }
 
 const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData }) => {
-  const [property, setProperty] = useState<string>('WHAF_2015_CLASS_EN');
+  const [property, setProperty] = useState<string>('Wildlife Habitat Capacity');
   const center: LatLngTuple = [56.130366, -106.346771];
 
   const properties = useMemo(() => {
@@ -47,9 +48,9 @@ const GeoJSONVisualization: React.FC<GeoJSONVisualizationProps> = ({ geojsonData
       };
     } else {
       const sortedValues = uniqueValues.sort((a, b) => a.toString().localeCompare(b.toString()));
-      const colors = ['#0000FF', '#00FFFF', '#00FF00', '#FFFF00', '#FF0000', '#FF00FF'];
+      const colors = chroma.scale('Set3').colors(sortedValues.length);
       const legendItems = sortedValues.map((value, index) => ({
-        color: colors[index % colors.length],
+        color: colors[index],
         label: value ? value.toString() : 'Undefined'
       }));
       return {

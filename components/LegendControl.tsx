@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -20,35 +19,37 @@ const LegendControl: React.FC<LegendControlProps> = ({ property, legendItems, is
         const div = L.DomUtil.create('div', 'info legend');
         let legendContent = '';
 
+        const formatNumber = (num: number) => {
+          if (num < 1000) {
+            return Number(num.toFixed(2)).toString();
+          } else if (num >= 1000000) {
+            return (Number((num / 1000000).toFixed(2))).toString() + 'M';
+          } else if (num >= 1000) {
+            return (Number((num / 1000).toFixed(2))).toString() + 'K';
+          }
+        };
+
         if (isContinuous && colorScale) {
           const { min, max } = legendItems[0];
           const steps = 5;
+          const middleValue = (min + max) / 2;
           const gradientStops = Array.from({ length: steps }, (_, i) => {
             const value = min + (i / (steps - 1)) * (max - min);
-            return `${colorScale(value)} ${(i / (steps - 1)) * 100}%`;
-          }).join(', ');
-
-          const gradientStyle = `
-            width: 200px;
-            height: 20px;
-            background: linear-gradient(to right, ${gradientStops});
-          `;
-
-          const scaleLabels = Array.from({ length: steps }, (_, i) => {
-            const value = min + (i / (steps - 1)) * (max - min);
-            return `<span style="left: ${(i / (steps - 1)) * 100}%">${value.toFixed(2)}</span>`;
-          }).join('');
+            return colorScale(value);
+          });
 
           legendContent = `
             <div class="continuous-legend">
-              <div style="${gradientStyle}"></div>
-              <div class="scale-labels" style="position: relative; margin-top: 5px; height: 20px;">
-                ${scaleLabels}
+              <div class="gradient-bar" style="height: 20px; width: 100%; background: linear-gradient(to right, ${gradientStops.join(',')});"></div>
+              <div class="scale-labels" style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <span>${formatNumber(min)}</span>
+                <span>${formatNumber(middleValue)}</span>
+                <span>${formatNumber(max)}</span>
               </div>
             </div>
           `;
         } else {
-          legendContent = legendItems.map(item => `
+          legendContent = legendItems.map((item) => `
             <div class="flex items-center mb-2">
               <div class="w-6 h-6 mr-2 flex-shrink-0 border border-gray-300" style="background-color: ${item.color};"></div>
               <span class="text-sm break-all" style="color: black;">${item.label || 'Undefined'}</span>
@@ -57,20 +58,27 @@ const LegendControl: React.FC<LegendControlProps> = ({ property, legendItems, is
         }
 
         div.innerHTML = `
-          <div class="p-4 bg-white rounded shadow-lg" style="min-width: 250px; max-height: 80vh; overflow-y: auto;">
+          <div class="p-4 bg-white rounded shadow-lg" style="min-width: 280px; max-width: 320px; max-height: 80vh; overflow-y: auto;">
             <h3 class="font-bold mb-2 text-lg" style="color: black;">${property}</h3>
             ${legendContent}
           </div>
         `;
 
-        // Add CSS for scale labels
         const style = document.createElement('style');
         style.textContent = `
-          .scale-labels span {
-            position: absolute;
-            transform: translateX(-50%);
+          .continuous-legend .gradient-bar {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+          }
+          .continuous-legend .scale-labels {
             font-size: 12px;
             color: black;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+          }
+          .continuous-legend .scale-labels span {
+            white-space: nowrap;
           }
         `;
         div.appendChild(style);
