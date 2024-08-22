@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import { LatLngTuple } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { GeoJSONData } from '@/types/geojson';
 import LegendControl from './LegendControl';
+import chroma from 'chroma-js';
 
 interface SelPosVisualizationProps {
   geojsonData: GeoJSONData;
@@ -11,7 +12,7 @@ interface SelPosVisualizationProps {
 
 const SelPosVisualization: React.FC<SelPosVisualizationProps> = ({ geojsonData }) => {
   const center: LatLngTuple = [56.130366, -106.346771];
-  const [property, setProperty] = useState<string>('WHAF_2015_CLASS_EN');
+  const property = 'Wildlife Habitat Capacity'; // Fixed property
 
   const { legendItems, colorScale, isContinuous } = useMemo(() => {
     console.log("Calculating legend items for property:", property);
@@ -26,21 +27,17 @@ const SelPosVisualization: React.FC<SelPosVisualizationProps> = ({ geojsonData }
       const numericValues = values.map(v => parseFloat(v as string));
       const min = Math.min(...numericValues);
       const max = Math.max(...numericValues);
-      const colorScale = (value: number): string => {
-        const normalized = (value - min) / (max - min);
-        const hue = (1 - normalized) * 240; // Blue to Red
-        return `hsl(${hue}, 100%, 50%)`;
-      };
+      const colorScale = chroma.scale(['blue', 'red']).domain([min, max]);
       return {
         legendItems: [{ min, max }],
-        colorScale,
+        colorScale: (value: number) => colorScale(value).hex(),
         isContinuous: true as const
       };
     } else {
       const sortedValues = uniqueValues.sort((a, b) => a.toString().localeCompare(b.toString()));
-      const colors = ['#0000FF', '#00FFFF', '#00FF00', '#FFFF00', '#FF0000', '#FF00FF'];
+      const colors = chroma.scale('Set3').colors(sortedValues.length);
       const legendItems = sortedValues.map((value, index) => ({
-        color: colors[index % colors.length],
+        color: colors[index],
         label: value ? value.toString() : 'Undefined'
       }));
       return {
@@ -74,22 +71,24 @@ const SelPosVisualization: React.FC<SelPosVisualizationProps> = ({ geojsonData }
   };
 
   return (
-    <MapContainer
-      center={center} zoom={5} 
-      style={{ height: '100%', width: '100%' }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <GeoJSON data={geojsonData} style={style} />
-      <LegendControl
-        property={property}
-        legendItems={legendItems}
-        isContinuous={true}
-        colorScale={colorScale}
-      />
-    </MapContainer>
+    <div className="h-screen w-full">
+      <MapContainer
+        center={center} zoom={5} 
+        style={{ height: '100%', width: '100%' }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <GeoJSON data={geojsonData} style={style} />
+        <LegendControl
+          property={property}
+          legendItems={legendItems}
+          isContinuous={isContinuous}
+          colorScale={colorScale}
+        />
+      </MapContainer>
+    </div>
   );
 };
 
